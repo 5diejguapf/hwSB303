@@ -8,9 +8,9 @@
 import Foundation
 
 enum DateTimeFormats: String {
-    case Date = "yyyy-MM-dd"
-    case DateTime = "yyyy-MM-dd HH:mm:ss"
-    case Time = "HH:mm:ss"
+    case date = "yyyy-MM-dd"
+    case dateTime = "yyyy-MM-dd HH:mm:ss"
+    case time = "HH:mm:ss"
     
     static func toDateTime(_ container: inout UnkeyedDecodingContainer, format: Self) throws -> Date? {
         let tmpStr = try container.decode(String?.self)
@@ -84,7 +84,7 @@ struct IssFortsSecurityInfo: Decodable {
         lastsettleprice = try container.decode(Double?.self)
         prevprice = try container.decode(Double?.self)
         
-        imtime = try DateTimeFormats.toDateTime(&container, format: .DateTime)
+        imtime = try DateTimeFormats.toDateTime(&container, format: .dateTime)
         
         buysellfee = try container.decode(Double?.self)
         scalperfee = try container.decode(Double?.self)
@@ -152,7 +152,7 @@ struct IssFortsMarketInfo: Decodable {
         valtoday = try container.decode(Int64?.self)
         valtoday_usd = try container.decode(Int64?.self)
         
-        updatetime = try DateTimeFormats.toDateTime(&container, format: .Time)
+        updatetime = try DateTimeFormats.toDateTime(&container, format: .time)
         
         lastchangeprcnt = try container.decode(Double?.self)
         biddepth = try container.decode(Double?.self)
@@ -162,13 +162,13 @@ struct IssFortsMarketInfo: Decodable {
         offerdeptht = try container.decode(Double?.self)
         numoffers = try container.decode(Double?.self)
         
-        time = try DateTimeFormats.toDateTime(&container, format: .Time)
+        time = try DateTimeFormats.toDateTime(&container, format: .time)
         
         settletoprevsettleprc = try container.decode(Double?.self)
         seqnum = try container.decode(Int64?.self)
         
-        systime = try DateTimeFormats.toDateTime(&container, format: .DateTime)
-        tradedate = try DateTimeFormats.toDateTime(&container, format: .DateTime)
+        systime = try DateTimeFormats.toDateTime(&container, format: .dateTime)
+        tradedate = try DateTimeFormats.toDateTime(&container, format: .dateTime)
         
         lasttoprevprice = try container.decode(Double?.self)
         oichange = try container.decode(Int64?.self)

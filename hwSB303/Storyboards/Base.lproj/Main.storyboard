@@ -184,10 +184,10 @@
             </objects>
             <point key="canvasLocation" x="1123.125" y="-669.71830985915494"/>
         </scene>
-        <!--Main View Controller-->
+        <!--Tab Bar Controller-->
         <scene sceneID="QQG-Xg-QMt">
             <objects>
-                <tabBarController id="kkb-DS-XCI" customClass="MainViewController" customModule="hwSB303" customModuleProvider="target" sceneMemberID="viewController">
+                <tabBarController id="kkb-DS-XCI" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="6Wa-Lj-0JE"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Qgb-vS-Nus">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>

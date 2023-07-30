@@ -22,6 +22,8 @@ class NetworkManager {
     static let shared = NetworkManager()
     var responseDurations: [Double] = []
     
+    private init() {}
+    
     func fetchFortsAllSecurities(complation: @escaping (Result<AllFortsSecResponse, Error>) -> Void) {
         guard let url = URL(string: Links.allFortsSecurities.rawValue) else {
             return complation(.failure(NetManagerError.UrlParsing))
