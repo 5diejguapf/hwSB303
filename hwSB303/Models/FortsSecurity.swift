@@ -12,21 +12,30 @@ enum DateTimeFormats: String {
     case dateTime = "yyyy-MM-dd HH:mm:ss"
     case time = "HH:mm:ss"
     
-    static func toDateTime(_ container: inout UnkeyedDecodingContainer, format: Self) throws -> Date? {
-        let tmpStr = try container.decode(String?.self)
+    static private func dateWithTZ(from: String?, format: Self) -> Date? {
         let df = DateFormatter()
         df.timeZone = TimeZone(identifier:"Europe/Moscow")
         df.dateFormat = format.rawValue
-        return df.date(from: tmpStr ?? "")
+        return df.date(from: from ?? "")
+    }    
+    
+    static func toDateTime(_ container: inout UnkeyedDecodingContainer, format: Self) throws -> Date? {
+        let tmpStr = try container.decode(String?.self)
+        return dateWithTZ(from: tmpStr, format: format)
+    }
+    
+    static func toDateTime(_ from: Any?, format: Self) -> Date? {
+        let tmpStr = from as? String
+        return dateWithTZ(from: tmpStr, format: format)
     }
 }
 
 struct AllFortsSecResponse: Decodable {
-    let securities: FortsSecurityDate
+    let securities: FortsSecurityData
     let marketdata: FortsMarketData
 }
 
-struct FortsSecurityDate: Decodable {
+struct FortsSecurityData: Decodable {
     let data: [IssFortsSecurityInfo]
 }
 
@@ -60,6 +69,34 @@ struct IssFortsSecurityInfo: Decodable {
     let scalperfee: Double?
     let negotiatedfee: Double?
     let exercisefee: Double?
+    
+    init(from: [String: Any]) throws {
+        secid = from["secid"] as? String
+        boardid = from["boardid"] as? String
+        shortname = from["shortname"] as? String
+        secname = from["secname"] as? String
+        prevsettleprice = from["prevsettleprice"] as? Double
+        decimals = from["decimals"] as? Int32
+        minstep = from["minstep"] as? Double
+        lasttradedate = from["lasttradedate"] as? Date
+        lastdeldate = from["lastdeldate"] as? Date
+        sectype = from["sectype"] as? String
+        latname = from["latname"] as? String
+        assetcode = from["assetcode"] as? String
+        prevopenposition = from["prevopenposition"] as? Int64
+        lotvolume = from["lotvolume"] as? Int32
+        initialmargin = from["initialmargin"] as? Double
+        highlimit = from["highlimit"] as? Double
+        lowlimit = from["lowlimit"] as? Double
+        stepprice = from["stepprice"] as? Double
+        lastsettleprice = from["lastsettleprice"] as? Double
+        prevprice = from["prevprice"] as? Double
+        imtime = DateTimeFormats.toDateTime(from["imtime"], format: .dateTime)
+        buysellfee = from["buysellfee"] as? Double
+        scalperfee = from["scalperfee"] as? Double
+        negotiatedfee = from["negotiatedfee"] as? Double
+        exercisefee = from["exercisefee"] as? Double
+    }
     
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
@@ -130,6 +167,44 @@ struct IssFortsMarketInfo: Decodable {
     let oichange: Int64?
     let openperiodprice: Double?
     let swaprate: Double?
+
+    init(from: [String: Any]) throws {
+        secid = from["secid"] as? String
+        boardid = from["boardid"] as? String
+        bid = from["bid"] as? Double
+        offer = from["offer"] as? Double
+        spread = from["spread"] as? Double
+        open = from["open"] as? Double
+        high = from["high"] as? Double
+        low = from["low"] as? Double
+        last = from["last"] as? Double
+        quantity = from["quantity"] as? Int32
+        lastchange = from["lastchange"] as? Double
+        settleprice = from["settleprice"] as? Double
+        settletoprevsettle = from["settletoprevsettle"] as? Double
+        openposition = from["openposition"] as? Double
+        numtrades = from["numtrades"] as? Int32
+        voltoday = from["voltoday"] as? Int64
+        valtoday = from["valtoday"] as? Int64
+        valtoday_usd = from["valtoday_usd"] as? Int64
+        updatetime = DateTimeFormats.toDateTime(from["updatetime"], format: .time)
+        lastchangeprcnt = from["lastchangeprcnt"] as? Double
+        biddepth = from["biddepth"] as? Double
+        biddeptht = from["biddeptht"] as? Double
+        numbids = from["numbids"] as? Double
+        offerdepth = from["offerdepth"] as? Double
+        offerdeptht = from["offerdeptht"] as? Double
+        numoffers = from["numoffers"] as? Double
+        time = DateTimeFormats.toDateTime(from["time"], format: .time)
+        settletoprevsettleprc = from["settletoprevsettleprc"] as? Double
+        seqnum = from["seqnum"] as? Int64
+        systime = DateTimeFormats.toDateTime(from["systime"], format: .dateTime)
+        tradedate = DateTimeFormats.toDateTime(from["tradedate"], format: .dateTime)
+        lasttoprevprice = from["lasttoprevprice"] as? Double
+        oichange = from["oichange"] as? Int64
+        openperiodprice = from["openperiodprice"] as? Double
+        swaprate = from["swaprate"] as? Double
+    }
 
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()

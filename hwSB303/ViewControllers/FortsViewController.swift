@@ -8,7 +8,7 @@
 import UIKit
 
 final class FortsViewController: UITableViewController {
-    private var fortsSecurity: AllFortsSecResponse?
+    private var fortsData: AllFortsSecResponse?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,17 +16,25 @@ final class FortsViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let securities = self.fortsSecurity?.securities else { return 0 }
-        return securities.data.count
+        guard let fortsData = self.fortsData else { return 0 }
+        return min(fortsData.marketdata.data.count, fortsData.securities.data.count)
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "fortsCell", for: indexPath)
         guard let cell = cell as? FortsCellView else { return UITableViewCell() }
-        guard let securities = fortsSecurity?.securities, let marketdata = fortsSecurity?.marketdata else { return UITableViewCell() }
+        guard let securities = fortsData?.securities, let marketdata = fortsData?.marketdata else { return UITableViewCell() }
         
         cell.configure(with: securities.data[indexPath.row], marketdata: marketdata.data[indexPath.row])
         return cell
+    }
+    
+    func setNaviTitleCount(count: Int) {
+        if count == 0 {
+            self.navigationItem.title = "All FORTS futures (-)"
+        } else {
+            self.navigationItem.title = "All FORTS futures (\(count))"
+        }
     }
     
 }
@@ -34,12 +42,14 @@ final class FortsViewController: UITableViewController {
 // MARK: - Networking
 extension FortsViewController {
     func fetchAll() {
-        NetworkManager.shared.fetchFortsAllSecurities { [weak self] result in
+        NetworkManager.shared.fetchFortsAllSecAF { [weak self] result in
             switch result {
             case .success(let data):
-                self?.fortsSecurity = data
+                self?.fortsData = data
+                let min_count = min(data.marketdata.data.count, data.securities.data.count)
                 DispatchQueue.main.async {
                     self?.tableView.reloadData()
+                    self?.setNaviTitleCount(count: min_count)
                 }
             case .failure(let err):
                 print(err)
