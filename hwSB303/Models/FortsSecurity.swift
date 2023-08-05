@@ -33,6 +33,43 @@ enum DateTimeFormats: String {
 struct AllFortsSecResponse: Decodable {
     let securities: FortsSecurityData
     let marketdata: FortsMarketData
+    
+    init(from: Any) {
+        let issData = from as? [String: Any] ?? [:]
+        
+        let securities = issData["securities"] as? [String: Any] ?? [:]
+        let secColumns = securities["columns"] as? [String] ?? []
+        let secData = securities["data"] as? [[Any]] ?? []
+        
+        var securitiesInfo: [IssFortsSecurityInfo] = []
+        for security in secData {
+            do {
+                let secDict = Dictionary( uniqueKeysWithValues: zip(secColumns.map { $0.lowercased() }, security ))
+                let secInfo = try IssFortsSecurityInfo(from: secDict)
+                securitiesInfo.append(secInfo)
+            } catch {
+                print(error)
+            }
+        }
+        self.securities = FortsSecurityData(data: securitiesInfo)
+        
+        let marketdata = issData["marketdata"] as? [String: Any] ?? [:]
+        let marketColumns = marketdata["columns"] as? [String] ?? []
+        let markData = marketdata["data"] as? [[Any]] ?? []
+
+        var marketInfos: [IssFortsMarketInfo] = []
+        for market in markData {
+            do {
+                let marketDict = Dictionary( uniqueKeysWithValues: zip(marketColumns.map { $0.lowercased() }, market ))
+                let marketInfo = try IssFortsMarketInfo(from: marketDict)
+                marketInfos.append(marketInfo)
+            } catch {
+                print(error)
+            }
+        }
+        
+        self.marketdata = FortsMarketData(data: marketInfos)
+    }
 }
 
 struct FortsSecurityData: Decodable {

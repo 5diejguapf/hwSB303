@@ -31,48 +31,12 @@ class NetworkManager {
             .responseJSON { responseData in
                 switch responseData.result {
                 case .success(let values):
-                    guard let issData = values as? [String: Any] else { complation(.failure(NetManagerError.Decoding)); return }
-                    
-                    guard let securities = issData["securities"] as? [String: Any] else { complation(.failure(NetManagerError.Decoding)); return  }
-                    guard let secColumns = securities["columns"] as? [String] else { complation(.failure(NetManagerError.Decoding)); return }
-                    guard let secData = securities["data"] as? [[Any]] else { complation(.failure(NetManagerError.Decoding)); return }
-                    
-                    var securitiesInfo: [IssFortsSecurityInfo] = []
-                    for security in secData {
-                        do {
-                            let secDict = Dictionary( uniqueKeysWithValues: zip(secColumns.map { $0.lowercased() }, security ))
-                            let secInfo = try IssFortsSecurityInfo(from: secDict)
-                            securitiesInfo.append(secInfo)
-                        } catch {
-                            print(error)
-                        }
-                    }
-                    let fortsSecData = FortsSecurityData(data: securitiesInfo)
-                    
-                    guard let marketdata = issData["marketdata"] as? [String: Any] else { complation(.failure(NetManagerError.Decoding)); return }
-                    guard let marketColumns = marketdata["columns"] as? [String] else { complation(.failure(NetManagerError.Decoding)); return }
-                    guard let markData = marketdata["data"] as? [[Any]] else { complation(.failure(NetManagerError.Decoding)); return }
-
-                    var marketInfos: [IssFortsMarketInfo] = []
-                    for market in markData {
-                        do {
-                            let marketDict = Dictionary( uniqueKeysWithValues: zip(marketColumns.map { $0.lowercased() }, market ))
-                            let marketInfo = try IssFortsMarketInfo(from: marketDict)
-                            marketInfos.append(marketInfo)
-                        } catch {
-                            print(error)
-                        }
-                    }
-                    
-                    let fortsMarketData = FortsMarketData(data: marketInfos)
-                    let result: AllFortsSecResponse = AllFortsSecResponse(securities: fortsSecData, marketdata: fortsMarketData)
-                    complation(.success(result))
+                    complation(.success(AllFortsSecResponse(from: values)))
                 case .failure(let error):
                     print(error)
                     complation(.failure(NetManagerError.Other))
                 }
             }
-        
     }
     
     func fetchFortsAllSecurities(complation: @escaping (Result<AllFortsSecResponse, Error>) -> Void) {
